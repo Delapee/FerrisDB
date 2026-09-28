@@ -33,7 +33,36 @@ fn check(cursor: &mut io::Cursor<&[u8]>, depth: &mut usize) -> Result<(), ParseE
 
     let prefix = cursor.get_u8();
     match prefix {
-        b'+' | b'-' | b':' => check_simple_data_types(cursor),
+        b'+' | b'-' => check_simple_data_types(cursor),
+        b':' => {
+            let initial_pos = cursor.position() as usize;
+            let remaining = &cursor.get_ref()[initial_pos..];
+
+            if let Some(crlf_offset) = remaining.windows(CRLF_LEN).position(|win| win == CRLF) {
+                if crlf_offset > LINE_LIMIT {
+                    return Err(ParseError::LineLimitExceeded {
+                        scanned: crlf_offset,
+                        limit: LINE_LIMIT,
+                    });
+                }
+
+                let _ = parse_to_number::<i64>(&remaining[..crlf_offset])?;
+
+                let new_pos = initial_pos + crlf_offset + CRLF_LEN;
+                cursor.set_position(new_pos as u64);
+
+                Ok(())
+            } else {
+                if remaining.len() > LINE_LIMIT {
+                    return Err(ParseError::LineLimitExceeded {
+                        scanned: remaining.len(),
+                        limit: LINE_LIMIT,
+                    });
+                }
+
+                Err(ParseError::Incomplete)
+            }
+        }
         b'$' => {
             let initial_pos = cursor.position() as usize;
             let remaining = &cursor.get_ref()[initial_pos..];

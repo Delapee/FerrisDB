@@ -1,6 +1,7 @@
 use std::{io, str::FromStr};
 
 use bytes::{Buf, Bytes, BytesMut};
+use memchr::memmem;
 
 use crate::{
     ParseError,
@@ -38,7 +39,7 @@ fn check(cursor: &mut io::Cursor<&[u8]>, depth: &mut usize) -> Result<(), ParseE
             let initial_pos = cursor.position() as usize;
             let remaining = &cursor.get_ref()[initial_pos..];
 
-            if let Some(crlf_offset) = remaining.windows(CRLF_LEN).position(|win| win == CRLF) {
+            if let Some(crlf_offset) = memmem::find(remaining, CRLF) {
                 if crlf_offset > LINE_LIMIT {
                     return Err(ParseError::LineLimitExceeded {
                         scanned: crlf_offset,
@@ -67,7 +68,7 @@ fn check(cursor: &mut io::Cursor<&[u8]>, depth: &mut usize) -> Result<(), ParseE
             let initial_pos = cursor.position() as usize;
             let remaining = &cursor.get_ref()[initial_pos..];
 
-            if let Some(crlf_offset) = remaining.windows(CRLF_LEN).position(|win| win == CRLF) {
+            if let Some(crlf_offset) = memmem::find(remaining, CRLF) {
                 if crlf_offset > LINE_LIMIT {
                     return Err(ParseError::LineLimitExceeded {
                         scanned: crlf_offset,
@@ -133,7 +134,7 @@ fn check(cursor: &mut io::Cursor<&[u8]>, depth: &mut usize) -> Result<(), ParseE
             let initial_pos = cursor.position() as usize;
             let remaining = &cursor.get_ref()[initial_pos..];
 
-            if let Some(crlf_offset) = remaining.windows(CRLF_LEN).position(|win| win == CRLF) {
+            if let Some(crlf_offset) = memmem::find(remaining, CRLF) {
                 if crlf_offset > LINE_LIMIT {
                     return Err(ParseError::LineLimitExceeded {
                         scanned: crlf_offset,
@@ -193,7 +194,7 @@ fn parse(src: &mut BytesMut) -> Result<Frame, ParseError> {
         b'+' => Ok(Frame::SimpleString(get_payload(src))),
         b'-' => Ok(Frame::Error(get_payload(src))),
         b':' => {
-            let Some(crlf_offset) = src.windows(CRLF_LEN).position(|win| win == CRLF) else {
+            let Some(crlf_offset) = memmem::find(src, CRLF) else {
                 unreachable!("check already validated CRLF");
             };
 
@@ -204,7 +205,7 @@ fn parse(src: &mut BytesMut) -> Result<Frame, ParseError> {
             Ok(Frame::Integer(value))
         }
         b'$' => {
-            let Some(crlf_offset) = src.windows(CRLF_LEN).position(|win| win == CRLF) else {
+            let Some(crlf_offset) = memmem::find(src, CRLF) else {
                 unreachable!("check already validated CRLF");
             };
 
@@ -222,7 +223,7 @@ fn parse(src: &mut BytesMut) -> Result<Frame, ParseError> {
             Ok(Frame::BulkString(payload))
         }
         b'*' => {
-            let Some(crlf_offset) = src.windows(CRLF_LEN).position(|win| win == CRLF) else {
+            let Some(crlf_offset) = memmem::find(src, CRLF) else {
                 unreachable!("check already validated CRLF");
             };
 
@@ -256,7 +257,7 @@ fn check_simple_data_types(cursor: &mut io::Cursor<&[u8]>) -> Result<(), ParseEr
     let initial_pos = cursor.position() as usize;
     let remaining = &cursor.get_ref()[initial_pos..];
 
-    if let Some(crlf_offset) = remaining.windows(CRLF_LEN).position(|win| win == CRLF) {
+    if let Some(crlf_offset) = memmem::find(remaining, CRLF) {
         if crlf_offset > LINE_LIMIT {
             return Err(ParseError::LineLimitExceeded {
                 scanned: crlf_offset,
@@ -281,7 +282,7 @@ fn check_simple_data_types(cursor: &mut io::Cursor<&[u8]>) -> Result<(), ParseEr
 }
 
 fn get_payload(src: &mut BytesMut) -> Bytes {
-    let Some(crlf_offset) = src.windows(CRLF_LEN).position(|win| win == CRLF) else {
+    let Some(crlf_offset) = memmem::find(src, CRLF) else {
         unreachable!("check already validated CRLF");
     };
 

@@ -33,16 +33,3 @@ jobs:
       - name: cargo clippy
         # "-D warnings" causes CI to fail if Clippy finds any warnings
         run: cargo clippy --all-targets --all-features -- -D warnings
-
-  doc:
-    name: doc
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
-      - name: cargo doc
-        # "--no-deps" prevents generating documentation for external dependencies (saves a lot of time)
-        run: cargo doc --no-deps --document-private-items

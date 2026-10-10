@@ -16,6 +16,10 @@ pub struct ServerConfig {
     /// Maximum memory limit in bytes before eviction policies kick in (Default: 1GB)
     #[arg(long, default_value_t = 1073741824)]
     pub max_memory: usize,
+
+    /// Maximum number of concurrent client connections allowed
+    #[arg(long, default_value_t = 1024)]
+    pub max_connections: usize,
 }
 
 impl ServerConfig {

@@ -10,15 +10,38 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v7
-      
+
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
-        
+
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
 
       - name: cargo test
         run: cargo test --all-features
+
+  fuzz:
+    name: fuzzing sanity check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "fuzz-nightly"
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --locked
+
+      - name: Run fuzz targets (time-boxed)
+        run: |
+          cd crates/codec
+          cargo +nightly fuzz run fuzz_decode -- -dict=fuzz/resp.dict -max_total_time=30 -max_len=16384

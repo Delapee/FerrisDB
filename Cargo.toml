@@ -2,6 +2,7 @@
 resolver = "2"
 
 members = ["crates/*", "server"]
+exclude = ["crates/codec/fuzz"]
 
 [workspace.dependencies]
 tokio = { version = "1.53", features = ["full"] }

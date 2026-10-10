@@ -1,0 +1,79 @@
+# ==============================================================================
+# RESP2 (REdis Serialization Protocol) Dictionary for libFuzzer / cargo-fuzz
+# ==============================================================================
+
+# --- Line Delimiters & Separators ---
+crlf="\x0d\x0a"
+cr="\x0d"
+lf="\x0a"
+double_crlf="\x0d\x0a\x0d\x0a"
+lfcr="\x0a\x0d"
+
+# --- Type Identifiers / Prefixes ---
+prefix_simple_string="+"
+prefix_error="-"
+prefix_integer=":"
+prefix_bulk_string="$"
+prefix_array="*"
+
+# --- Null Primitives (Null Bulk String & Null Array) ---
+null_bulk="$-1\x0d\x0a"
+null_array="*-1\x0d\x0a"
+
+# --- Common Frame Markers & Empty Representations ---
+empty_bulk="$0\x0d\x0a\x0d\x0a"
+empty_array="*0\x0d\x0a"
+simple_ok="+OK\x0d\x0a"
+simple_pong="+PONG\x0d\x0a"
+simple_queued="+QUEUED\x0d\x0a"
+err_generic="-ERR\x0d\x0a"
+err_syntax="-ERR syntax error\x0d\x0a"
+
+# --- Numerical Edge Cases (i64 boundaries & sign variations) ---
+num_zero="0"
+num_plus_zero="+0"
+num_minus_zero="-0"
+num_one="1"
+num_minus_one="-1"
+num_max_i64="9223372036854775807"
+num_overflow_i64="9223372036854775808"
+num_min_i64="-9223372036854775808"
+num_underflow_i64="-9223372036854775809"
+num_max_u64="18446744073709551615"
+num_leading_zeros="00000000001"
+num_huge_bulk_size="536870912"
+
+# --- Integer Frame Sequences ---
+frame_int_zero=":0\x0d\x0a"
+frame_int_one=":1\x0d\x0a"
+frame_int_minus_one=":-1\x0d\x0a"
+frame_int_max=":9223372036854775807\x0d\x0a"
+frame_int_min=":-9223372036854775808\x0d\x0a"
+
+# --- Canonical Redis Commands (Pre-formatted Bulk Strings) ---
+bulk_ping="$4\x0d\x0aPING\x0d\x0a"
+bulk_pong="$4\x0d\x0aPONG\x0d\x0a"
+bulk_set="$3\x0d\x0aSET\x0d\x0a"
+bulk_get="$3\x0d\x0aGET\x0d\x0a"
+bulk_del="$3\x0d\x0aDEL\x0d\x0a"
+bulk_echo="$4\x0d\x0aECHO\x0d\x0a"
+bulk_quit="$4\x0d\x0aQUIT\x0d\x0a"
+bulk_select="$6\x0d\x0aSELECT\x0d\x0a"
+bulk_command="$7\x0d\x0aCOMMAND\x0d\x0a"
+
+# --- Multi-Element Array Commands (Pipelining & Common Wire Frames) ---
+arr_ping="*1\x0d\x0a$4\x0d\x0aPING\x0d\x0a"
+arr_echo="*2\x0d\x0a$4\x0d\x0aECHO\x0d\x0a$5\x0d\x0ahello\x0d\x0a"
+arr_get="*2\x0d\x0a$3\x0d\x0aGET\x0d\x0a$3\x0d\x0akey\x0d\x0a"
+arr_set="*3\x0d\x0a$3\x0d\x0aSET\x0d\x0a$3\x0d\x0akey\x0d\x0a$5\x0d\x0avalue\x0d\x0a"
+
+# --- Nested & Deep Array Triggers (Stress Recursion / Max Depth Limits) ---
+nested_arr_1="*1\x0d\x0a"
+nested_arr_2="*2\x0d\x0a"
+deep_nesting="*1\x0d\x0a*1\x0d\x0a*1\x0d\x0a*1\x0d\x0a"
+
+# --- Boundary & Defensive Triggers (LINE_LIMIT & MAX_ARRAY_ELEMENTS) ---
+arr_max_elements="*1048576\x0d\x0a"
+bulk_limit_exceeded="$536870913\x0d\x0a"
+null_bytes="\x00\x00\x00\x00"
+utf8_multibyte="\xc3\xa9\xe2\x98\x83\xf0\x9f\x92\xa9"

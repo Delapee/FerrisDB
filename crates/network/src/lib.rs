@@ -1,4 +1,4 @@
-pub mod connection;
+pub(crate) mod connection;
 pub mod error;
 pub mod serve;
 pub mod shutdown;

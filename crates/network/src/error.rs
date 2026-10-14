@@ -8,9 +8,6 @@ pub enum NetworkError {
     #[error("Protocol error: {0}")]
     Protocol(#[from] codec::ParseError),
 
-    #[error("Connection limit reached: server at maximum capacity")]
-    ConnectionLimitExceeded,
-
     #[error("Connection closed unexpectedly by client")]
     UnexpectedEof,
 }

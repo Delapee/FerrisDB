@@ -6,6 +6,8 @@ edition = "2024"
 [dependencies]
 tokio.workspace = true
 tracing.workspace = true
+tokio-util.workspace = true
 
 telemetry = { path = "../crates/telemetry" }
 config = { path = "../crates/config" }
+network = { path = "../crates/network" }

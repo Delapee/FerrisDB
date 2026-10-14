@@ -161,7 +161,7 @@ mod tests {
             .await
             .expect("failed to read aggregated responses");
 
-        for chunk in response_buf.chunks_exact(OK_BYTES_RESPONSE.len()) {
+        for chunk in response_buf.as_chunks::<{ OK_BYTES_RESPONSE.len() }>().0 {
             assert_eq!(chunk, OK_BYTES_RESPONSE);
         }
 

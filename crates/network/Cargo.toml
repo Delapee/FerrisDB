@@ -1,0 +1,14 @@
+[package]
+name = "network"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio.workspace = true
+tracing.workspace = true
+bytes.workspace = true
+thiserror.workspace = true
+tokio-util.workspace = true
+
+codec = { path = "../codec" }

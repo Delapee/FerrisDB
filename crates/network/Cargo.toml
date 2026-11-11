@@ -12,3 +12,4 @@ thiserror.workspace = true
 tokio-util.workspace = true
 
 codec = { path = "../codec" }
+storage = { path = "../storage" }

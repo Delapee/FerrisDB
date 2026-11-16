@@ -13,14 +13,13 @@ tokio = { version = "1.53", features = ["full"] }
 tokio-util = { version = "0.7.20", features = ["rt"] }
 
 thiserror = "2.0"
-anyhow = "1.0"
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 clap = { version = "4.5", features = ["derive"] }
-dotenvy = "0.15"
 
 bytes = "1"
 memchr = "2.8"
 ahash = "0.8.12"
+indexmap = "2.14.2"

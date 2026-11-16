@@ -8,6 +8,9 @@ pub enum NetworkError {
     #[error("Protocol error: {0}")]
     Protocol(#[from] codec::ParseError),
 
+    #[error("Command error: {0}")]
+    Command(#[from] storage::CommandError),
+
     #[error("Connection closed unexpectedly by client")]
     UnexpectedEof,
 }

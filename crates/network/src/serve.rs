@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use storage::Storage;
 use tokio::{net::TcpListener, sync::Semaphore};
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 
@@ -8,6 +9,7 @@ use crate::{NetworkError, connection::Connection};
 pub async fn run(
     addr: &str,
     max_conns: usize,
+    storage: Arc<Storage>,
     tracker: &TaskTracker,
     token: &CancellationToken,
 ) -> Result<(), NetworkError> {
@@ -37,9 +39,11 @@ pub async fn run(
                 tracing::debug!(client_addr = %remote_addr, "Accepted incoming connection");
 
                 let cloned_token = token.clone();
+                let cloned_storage = storage.clone();
+
                 tracker.spawn(async move {
                     let _permit = permit;
-                    let mut conn = Connection::new(socket, cloned_token);
+                    let mut conn = Connection::new(socket, cloned_token, cloned_storage);
 
                     if let Err(err) = conn.run().await {
                         tracing::debug!(client_addr = %remote_addr, error = %err, "Client connection closed with error");

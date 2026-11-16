@@ -29,10 +29,9 @@ async fn main() -> Result<(), NetworkError> {
     network::spawn_shutdown_listener(token.clone());
 
     tracing::debug!("Spawning storage cleaner");
-    storage::spawn_storage_cleaner(storage.clone(), token.clone());
+    storage::spawn_storage_cleaner(storage.clone(), tracker.clone(), token.clone());
 
     tracing::info!("Server initialization complete; starting network listener");
-
     let run_result = network::run(&addr, config.max_connections, storage, &tracker, &token).await;
     if let Err(ref err) = run_result {
         tracing::error!(error = %err, "Server encountered a network error");
